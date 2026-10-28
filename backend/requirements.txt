@@ -3,7 +3,7 @@
 # Dependabot (.github/dependabot.yml) ouvre des PR de mise à jour.
 fastapi==0.115.12
 uvicorn[standard]==0.34.2
-python-multipart==0.0.20
+python-multipart==0.0.32
 sqlalchemy[asyncio]==2.0.40
 asyncpg==0.30.0
 aiosqlite==0.21.0
