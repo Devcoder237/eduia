@@ -1,0 +1,18 @@
+# Secours gratuit à UptimeRobot : réveille l'API Render (qui s'endort après 15 min).
+# Définir la variable de dépôt API_URL (Settings > Secrets and variables > Actions > Variables),
+# ex. https://eduia-api.onrender.com . /health ne touche pas la base (Neon reste en veille).
+name: Keep API warm
+
+on:
+  schedule:
+    - cron: "*/14 * * * *"
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  ping:
+    if: ${{ vars.API_URL != '' }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: curl -fsS --retry 3 --retry-delay 10 --max-time 60 "${{ vars.API_URL }}/health"

@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>EduIA — Tuteur intelligent</title>
+    <meta name="description" content="EduIA : tuteur intelligent pour élèves et étudiants, du primaire à l'université." />
+    <meta name="theme-color" content="#FAF7F2" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+    <link rel="apple-touch-icon" href="/icon-192.png" />
+    <script>
+      (function () {
+        try {
+          var t = localStorage.getItem("eduia_theme");
+          if (t !== "light" && t !== "dark") {
+            t = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+          }
+          document.documentElement.setAttribute("data-theme", t);
+        } catch (e) {
+          document.documentElement.setAttribute("data-theme", "light");
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <noscript>EduIA nécessite JavaScript pour fonctionner.</noscript>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

@@ -1,0 +1,167 @@
+/**
+ * EduIA — design tokens (WCAG 2.2 AA).
+ *
+ * Ratios de contraste CALCULÉS avec la formule WCAG 2.x (script python3 stdlib,
+ * luminance relative sRGB). Seuils : texte >= 4,5:1 ; composants d'interface
+ * et indicateurs graphiques >= 3:1.
+ *
+ * ─── Thème CLAIR ───────────────────────────────────────────────────────────
+ *  --ink        #21201C sur --cream #FAF9F5 : 15,48 | sur --cream-dim : 14,56 | sur --sand : 13,33
+ *  --ink-soft   #5C574B sur --cream : 6,83 | sur --cream-dim : 6,42 | sur --sand : 5,88
+ *  --ink-faint  #68624F sur --cream : 5,78 | sur --cream-dim : 5,44 | sur --sand : 4,98
+ *               (l'original #9C9686 ne faisait que 2,8:1 : corrigé)
+ *  --accent     #B0502F : texte blanc dessus = 5,21 (l'original #C2603F = 4,17 : corrigé)
+ *  --accent-strong #8F3F23 : texte blanc dessus = 7,23
+ *  --accent-text #8F3F23 (accent utilisé comme COULEUR DE TEXTE) : 6,87 sur --cream | 6,46 sur --cream-dim | 5,92 sur --sand
+ *  --border-ui  #85806F (bordures de champs/contrôles) : 3,75 sur --cream | 3,53 sur --cream-dim | 3,23 sur --sand
+ *  --focus      #8F3F23 (anneau de focus) : 6,87 sur --cream
+ *  succès  texte #245038 sur #E7F0EA : 7,92 | indicateur #2F7A55 sur --cream : 4,94
+ *  erreur  texte #7A2E16 sur #F7E9E2 : 7,94 | indicateur #B03A1E sur --cream : 5,74 | blanc sur --danger : 6,05
+ *  alerte  texte #6B4C12 sur #FAEEDA : 6,86 | indicateur #9A6A10 sur --cream : 4,49
+ *
+ * ─── Thème SOMBRE ──────────────────────────────────────────────────────────
+ *  --ink        #F2EFE9 sur --cream #1E1C18 : 14,82 | sur --cream-dim #262320 : 13,62 | sur --sand #332E27 : 11,72
+ *  --ink-soft   #B8B0A0 sur --cream : 7,90 | sur --cream-dim : 7,26 | sur --sand : 6,25
+ *  --ink-faint  #A39B8B sur --cream : 6,17 | sur --cream-dim : 5,67 | sur --sand : 4,88
+ *  --accent     #E0875A : texte SOMBRE #1E1C18 dessus = 6,30 (blanc dessus ne faisait que 2,7 : corrigé)
+ *  --accent-strong #CF7449 : texte sombre dessus = 5,06
+ *  --accent-text #E0875A sur --cream : 6,30 | --cream-dim : 5,79 | --sand : 4,99
+ *  --border-ui  #8A8272 : 4,47 sur --cream | 4,11 sur --cream-dim | 3,53 sur --sand
+ *  --focus      #F2B08A : 9,20 sur --cream
+ *  succès  texte #8FCBA8 sur #1E3328 : 7,23 | indicateur #5FB88A : 7,06
+ *  erreur  texte #F0B49C sur #3A2118 : 8,30 | indicateur #E8806A : 6,26 | texte sombre sur --danger : 6,26
+ *  alerte  texte #E8C77F sur #332A14 : 8,71 | indicateur #D9A441 : 7,56
+ *
+ * Les couleurs d'accent de matières/niveaux (src/theme.ts) sont toutes >= 5,2:1 contre le blanc
+ * (texte blanc OK dans les deux thèmes car elles restent sombres), tintes claires calculées en 14 %.
+ */
+
+:root {
+  color-scheme: light;
+
+  /* Surfaces & texte */
+  --cream: #FAF9F5;
+  --cream-dim: #F4F2EC;
+  --sand: #ECE8DF;
+  --line: #E3DECF;          /* séparateurs décoratifs (non porteurs d'information) */
+  --line-strong: #D6CFBC;   /* idem */
+  --border-ui: #85806F;     /* bordures de composants interactifs (>= 3:1) */
+  --ink: #21201C;
+  --ink-soft: #5C574B;
+  --ink-faint: #68624F;
+  --white: #FFFFFF;
+
+  /* Accent de marque */
+  --accent: #B0502F;
+  --on-accent: #FFFFFF;
+  --accent-strong: #8F3F23;
+  --accent-text: #8F3F23;
+  --focus: #8F3F23;
+  --danger: #B03A1E;
+  --on-danger: #FFFFFF;
+
+  /* Alias historiques (landing, anciens composants) */
+  --rust: var(--accent);
+  --rust-deep: var(--accent-strong);
+
+  /* Statuts */
+  --success-bg: #E7F0EA;
+  --success-text: #245038;
+  --success-border: #A9CDB8;
+  --success-ui: #2F7A55;
+  --error-bg: #F7E9E2;
+  --error-text: #7A2E16;
+  --error-border: #E0B3A1;
+  --error-ui: #B03A1E;
+  --warning-bg: #FAEEDA;
+  --warning-text: #6B4C12;
+  --warning-border: #E2C58B;
+  --warning-ui: #9A6A10;
+
+  /* Typographie : piles système (aucune dépendance réseau, utile en 3G) */
+  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+  --font-serif: Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  /* Échelle typographique 12 / 14 / 16 / 20 / 28 (plancher 12 px) */
+  --fs-xs: 0.75rem;   /* 12 */
+  --fs-sm: 0.875rem;  /* 14 */
+  --fs-md: 1rem;      /* 16 */
+  --fs-lg: 1.25rem;   /* 20 */
+  --fs-xl: 1.75rem;   /* 28 */
+  --lh-tight: 1.25;
+  --lh-body: 1.6;
+
+  /* Espacement (pas de 4 / 8 px) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+
+  /* Formes, ombres, tailles */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-pill: 999px;
+  --shadow-sm: 0 1px 2px rgba(33, 32, 28, 0.06), 0 2px 8px rgba(33, 32, 28, 0.05);
+  --shadow-lg: 0 24px 48px -24px rgba(33, 32, 28, 0.4), 0 8px 24px -16px rgba(33, 32, 28, 0.25);
+  --tap: 44px;              /* cible tactile minimale */
+  --header-h: 56px;
+  --bottomnav-h: 60px;
+
+  /* Alias de compatibilité */
+  --color-background-primary: var(--cream);
+  --color-background-secondary: var(--cream-dim);
+  --color-background-tertiary: var(--sand);
+  --color-text-primary: var(--ink);
+  --color-text-secondary: var(--ink-soft);
+  --color-border-secondary: var(--line-strong);
+  --color-border-tertiary: var(--line);
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --cream: #1E1C18;
+  --cream-dim: #262320;
+  --sand: #332E27;
+  --line: #3D372E;
+  --line-strong: #4A4338;
+  --border-ui: #8A8272;
+  --ink: #F2EFE9;
+  --ink-soft: #B8B0A0;
+  --ink-faint: #A39B8B;
+
+  --accent: #E0875A;
+  --on-accent: #1E1C18;
+  --accent-strong: #CF7449;
+  --accent-text: #E0875A;
+  --focus: #F2B08A;
+  --danger: #E8806A;
+  --on-danger: #1E1C18;
+
+  --success-bg: #1E3328;
+  --success-text: #8FCBA8;
+  --success-border: #3D7A5C;
+  --success-ui: #5FB88A;
+  --error-bg: #3A2118;
+  --error-text: #F0B49C;
+  --error-border: #8C4A33;
+  --error-ui: #E8806A;
+  --warning-bg: #332A14;
+  --warning-text: #E8C77F;
+  --warning-border: #7A5A1E;
+  --warning-ui: #D9A441;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4), 0 2px 8px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 24px 48px -24px rgba(0, 0, 0, 0.7), 0 8px 24px -16px rgba(0, 0, 0, 0.5);
+}
+
+/* Corps de texte >= 16 px sur mobile ; légèrement réduit possible sur grand écran, jamais < 14 */
+@media (min-width: 768px) {
+  :root { --header-h: 60px; }
+}
