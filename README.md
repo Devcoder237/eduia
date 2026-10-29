@@ -1,5 +1,6 @@
 # EduIA — Tuteur intelligent
 > **English summary**: EduIA is an adaptive intelligent tutoring system built for Cameroonian learners. It tracks mastery per concept with Bayesian Knowledge Tracing (with forgetting and spaced repetition), grounds answers with BM25 retrieval (RAG), verifies multiple-choice answer keys, and measures calibration of learners' confidence. See `docs/PEDAGOGIE.md` for the model and its limits.
+
 Tuteur IA pour élèves et étudiants (primaire → université), FR/EN : chat pédagogique en streaming (modes explication et socratique), exercices corrigés, quiz, examens blancs chronométrés côté serveur, plans d'étude, suivi des progrès, espace enseignant.
 
 - **Backend** : FastAPI, SQLAlchemy 2 (async), Alembic, PostgreSQL (Neon), JWT avec révocation.
