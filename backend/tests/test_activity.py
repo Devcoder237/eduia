@@ -107,6 +107,14 @@ async def test_invalid_heartbeats_are_rejected(
     assert response.status_code == 422
     assert await _sessions() == []
 
+async def test_deleting_the_account_removes_activity_time(client: AsyncClient, signup: Callable[..., Any]) -> None:
+    """RGPD : le temps d'activité est une donnée personnelle, supprimée avec le compte."""
+    alice = await signup("alice")
+    await _beat(client, alice, "tutor", 30)
+    assert len(await _sessions()) == 1
+    response = await client.request("DELETE", "/api/auth/me", headers=alice.headers, json={"password": "Secret123"})
+    assert response.status_code == 200, response.text
+    assert await _sessions() == []
 
 async def test_heartbeat_requires_authentication(client: AsyncClient) -> None:
     response = await client.post(BEAT, json={"module": "tutor", "seconds": 30})
