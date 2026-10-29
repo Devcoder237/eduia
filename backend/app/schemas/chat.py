@@ -148,7 +148,11 @@ class StatusOut(BaseModel):
 
     status: str
 
+class HeartbeatIn(BaseModel):
+    """Signal de présence : secondes réellement actives écoulées depuis le signal précédent."""
 
+    module: Literal["tutor", "quiz", "exercise", "exam", "other"]
+    seconds: int = Field(ge=1, le=60)
 # ───────────────────────────── Chat ─────────────────────────────
 
 

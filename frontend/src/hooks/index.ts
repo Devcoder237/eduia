@@ -12,3 +12,4 @@ export * from "./useStudyPlans";
 export * from "./useClassrooms";
 export * from "./useAdminStats";
 export * from "./useVoice";
+export * from "./useActivityTracker";

@@ -13,6 +13,7 @@ from app.core.security import enum_value
 from app.core.timeutil import ensure_utc, to_local_date, today_local, utcnow
 from app.db.database import get_db
 from app.models.models import (
+    ActivitySession,
     Badge,
     ExamSession,
     ExerciseAttempt,
@@ -220,7 +221,11 @@ async def get_detailed_stats(
             select(TutorSession.subject, TutorSession.duration_sec).where(TutorSession.user_id == user_id)
         )
     ).all()
-    durations = [d for _, d in rows if d]
+        # Temps d'activité RÉEL (signaux de présence), pas la durée d'ouverture d'une conversation.
+    active_rows = (
+        await db.execute(select(ActivitySession.active_sec).where(ActivitySession.user_id == user_id))
+    ).scalars().all()
+    durations = [d for d in active_rows if d]
     by_subject: dict[str, int] = defaultdict(int)
     for subject, _ in rows:
         by_subject[enum_value(subject)] += 1

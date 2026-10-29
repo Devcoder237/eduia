@@ -26,6 +26,7 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.types import ASGIApp, Message, Receive, Scope, Send
 
 from app.api import (
+    activity,
     admin,
     auth,
     chat,
@@ -100,7 +101,8 @@ class RequestContextMiddleware:
         try:
             await self.app(scope, receive, send_wrapper)
         finally:
-            if scope["path"] not in ("/health", "/"):
+                        # Les signaux de présence (toutes les 30 s par élève) ne sont pas journalisés : bruit inutile.
+            if scope["path"] not in ("/health", "/", "/api/activity/heartbeat"):
                 log.info(
                     "http_request",
                     method=scope["method"],
@@ -205,7 +207,7 @@ app.include_router(exams.router, prefix="/api/exams", tags=["Examen blanc"])
 app.include_router(admin.router, prefix="/api/admin", tags=["Administration"])
 app.include_router(reports.router, prefix="/api/reports", tags=["Signalements"])
 app.include_router(classrooms.router, prefix="/api/classrooms", tags=["Mode enseignant"])
-
+app.include_router(activity.router, prefix="/api/activity", tags=["Temps d'activité"])
 
 @app.get("/", tags=["Health"])
 async def root() -> dict[str, str]:

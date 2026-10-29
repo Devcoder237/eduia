@@ -4,6 +4,8 @@ import { useT } from "./i18n";
 import { AuthProvider, useAuth, useRetryAuth } from "./context/AuthContext";
 import { PUBLIC_PAGES, useRoute, type Page } from "./lib/router";
 import { useServerWake } from "./hooks/useServerWake";
+import { useActivityTracker } from "./hooks/useActivityTracker";
+import { moduleForPage } from "./utils/activity";
 import { AppLayout } from "./layouts/AppLayout";
 import { WakeScreen } from "./components/WakeScreen";
 import { ErrorBoundary } from "./components/ErrorBoundary";
@@ -70,7 +72,8 @@ function Shell() {
   useEffect(() => {
     if (!authed) setVisited([]);
   }, [authed]);
-
+  // Temps d'utilisation réel (invisible) : uniquement pour un élève connecté, sur les écrans privés.
+  useActivityTracker(authed ? moduleForPage(page) : null);
   // Les écrans connectés et la connexion exigent un serveur réveillé ; la page d'accueil, non.
   const needsServer = page !== "landing" && page !== "legal";
   if (needsServer && wake.state !== "ready" && wake.state !== "checking") {

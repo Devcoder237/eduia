@@ -167,7 +167,24 @@ class TutorSession(Base):
     satisfaction = Column(Integer, nullable=True)
     topics_covered = Column(JSON, default=list)
     performance = Column(Float, nullable=True)
+class ActivitySession(Base):
+    """Session d'activité réelle d'un élève (temps d'utilisation mesuré, pas durée d'ouverture).
 
+    Le navigateur envoie un signal de présence toutes les 30 s d'activité (onglet visible,
+    interaction récente). Les signaux séparés de moins de 10 minutes alimentent la même session ;
+    au-delà, une nouvelle session démarre. ``active_sec`` ne compte que le temps réellement actif.
+    """
+
+    __tablename__ = "activity_sessions"
+    __table_args__ = (Index("ix_activity_sessions_user_last", "user_id", "last_beat_at"),)
+
+    id = Column(String(36), primary_key=True, default=new_uuid)
+    user_id = Column(String(36), ForeignKey("users.id"), nullable=False)
+    started_at = Column(UTCDateTime, nullable=False, default=utcnow)
+    last_beat_at = Column(UTCDateTime, nullable=False, default=utcnow)
+    active_sec = Column(Integer, nullable=False, default=0)
+    # {"tutor": 120, "quiz": 300, "exercise": 0, "exam": 0, "other": 15} : secondes actives par module.
+    module_seconds = Column(JSON, default=dict)
 
 class Message(Base):
     """Message d'une conversation (rôle ``user`` ou ``assistant``)."""
