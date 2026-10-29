@@ -1,8 +1,11 @@
-"""Envoi d'e-mails transactionnels (mot de passe oublié) par SMTP, sans dépendance supplémentaire.
+"""Envoi d'e-mails transactionnels (mot de passe oublié).
 
-Choix pour l'hébergement gratuit : le protocole SMTP standard fonctionne avec n'importe quel
-fournisseur proposant une offre gratuite (Brevo, Gmail avec mot de passe d'application...).
-Aucun secret dans le code : tout vient des variables d'environnement ``SMTP_*``.
+Deux modes, choisis par les variables d'environnement (aucun secret dans le code) :
+
+* API HTTPS Brevo (``EMAIL_API_KEY`` + ``EMAIL_FROM``) : à utiliser en production gratuite, car
+  Render bloque les ports SMTP sortants sur son offre gratuite.
+* SMTP (``SMTP_*``) : utile en local ou chez un hébergeur qui autorise le SMTP.
+
 Aucune adresse e-mail ni aucun lien n'est écrit dans les journaux de production.
 """
 
@@ -11,12 +14,15 @@ import ssl
 from email.message import EmailMessage
 
 import anyio
+import httpx
 
 from app.core.config import settings
 from app.core.i18n import Lang
 from app.core.logging import get_logger
 
 log = get_logger(__name__)
+
+BREVO_SEND_URL = "https://api.brevo.com/v3/smtp/email"
 
 _SUBJECT: dict[Lang, str] = {
     "fr": "EduIA — Réinitialisation de ton mot de passe",
@@ -49,8 +55,13 @@ def smtp_configured() -> bool:
     return bool(settings.SMTP_HOST and (settings.SMTP_FROM or settings.SMTP_USER))
 
 
+def api_configured() -> bool:
+    """Vrai si l'envoi par API HTTPS (Brevo) est configuré."""
+    return bool(settings.EMAIL_API_KEY and settings.EMAIL_FROM)
+
+
 def _send_sync(message: EmailMessage) -> None:
-    """Envoi bloquant (exécuté dans un thread) : STARTTLS (587) ou SSL direct (465)."""
+    """Envoi SMTP bloquant (exécuté dans un thread) : STARTTLS (587) ou SSL direct (465)."""
     context = ssl.create_default_context()
     if settings.SMTP_PORT == 465:
         with smtplib.SMTP_SSL(
@@ -69,6 +80,24 @@ def _login_and_send(server: smtplib.SMTP, message: EmailMessage) -> None:
     server.send_message(message)
 
 
+async def _send_via_api(to_address: str, subject: str, body: str) -> None:
+    """Envoie l'e-mail par l'API HTTPS de Brevo.
+
+    Raises:
+        httpx.HTTPError: Échec réseau, délai dépassé ou réponse d'erreur (clé ou expéditeur refusés).
+    """
+    payload = {
+        "sender": {"name": settings.EMAIL_FROM_NAME, "email": settings.EMAIL_FROM},
+        "to": [{"email": to_address}],
+        "subject": subject,
+        "textContent": body,
+    }
+    headers = {"api-key": settings.EMAIL_API_KEY, "accept": "application/json"}
+    async with httpx.AsyncClient(timeout=settings.SMTP_TIMEOUT_S) as client:
+        response = await client.post(BREVO_SEND_URL, json=payload, headers=headers)
+        response.raise_for_status()
+
+
 async def send_password_reset_email(to_address: str, link: str, lang: Lang) -> bool:
     """Envoie le lien de réinitialisation. Ne lève jamais d'exception (tâche d'arrière-plan).
 
@@ -78,23 +107,32 @@ async def send_password_reset_email(to_address: str, link: str, lang: Lang) -> b
         lang: Langue de l'e-mail.
 
     Returns:
-        ``True`` si l'e-mail a été remis au serveur SMTP, sinon ``False``.
+        ``True`` si l'e-mail a été remis au fournisseur (API ou SMTP), sinon ``False``.
     """
-    if not smtp_configured():
+    if not (api_configured() or smtp_configured()):
         if settings.is_production:
-            log.error("smtp_not_configured")
+            log.error("email_not_configured")
         else:
             # Développement/test uniquement : permet d'essayer le parcours sans fournisseur d'e-mail.
             log.warning("dev_reset_link", link=link)
         return False
-    message = EmailMessage()
-    message["Subject"] = _SUBJECT[lang]
-    message["From"] = settings.SMTP_FROM or settings.SMTP_USER
-    message["To"] = to_address
-    message.set_content(build_reset_body(link, lang))
+    subject = _SUBJECT[lang]
+    body = build_reset_body(link, lang)
     try:
-        await anyio.to_thread.run_sync(_send_sync, message)
-    except (OSError, smtplib.SMTPException) as exc:
+        if api_configured():
+            await _send_via_api(to_address, subject, body)
+        else:
+            message = EmailMessage()
+            message["Subject"] = subject
+            message["From"] = settings.SMTP_FROM or settings.SMTP_USER
+            message["To"] = to_address
+            message.set_content(body)
+            await anyio.to_thread.run_sync(_send_sync, message)
+    except httpx.HTTPStatusError as exc:
+        # Le code HTTP aide à diagnostiquer (401 clé invalide, 400/403 expéditeur non validé).
+        log.error("reset_email_failed", error_type=exc.__class__.__name__, status=exc.response.status_code)
+        return False
+    except (httpx.HTTPError, OSError, smtplib.SMTPException) as exc:
         log.error("reset_email_failed", error_type=exc.__class__.__name__)
         return False
     return True
