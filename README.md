@@ -1,5 +1,5 @@
 # EduIA — Tuteur intelligent
-
+> **English summary**: EduIA is an adaptive intelligent tutoring system built for Cameroonian learners. It tracks mastery per concept with Bayesian Knowledge Tracing (with forgetting and spaced repetition), grounds answers with BM25 retrieval (RAG), verifies multiple-choice answer keys, and measures calibration of learners' confidence. See `docs/PEDAGOGIE.md` for the model and its limits.
 Tuteur IA pour élèves et étudiants (primaire → université), FR/EN : chat pédagogique en streaming (modes explication et socratique), exercices corrigés, quiz, examens blancs chronométrés côté serveur, plans d'étude, suivi des progrès, espace enseignant.
 
 - **Backend** : FastAPI, SQLAlchemy 2 (async), Alembic, PostgreSQL (Neon), JWT avec révocation.
@@ -36,8 +36,7 @@ Aucune carte bancaire n'est requise. Guide pas à pas : **[docs/DEPLOYMENT_FREE.
 
 ## Mot de passe oublié
 
-`POST /api/auth/forgot-password` envoie un lien `#/reset?token=…` (valable 30 min, usage unique) ; `POST /api/auth/reset-password` enregistre le nouveau mot de passe et révoque toutes les sessions. Aucune migration : le jeton est signé et lié à l'empreinte du mot de passe actuel. En local sans SMTP, le lien s'affiche dans les logs du serveur (`dev_reset_link`). Configuration SMTP : voir `docs/DEPLOYMENT_FREE.md` (§ 6 bis) et `backend/.env.example`.
-
+En production (hébergement gratuit), l'e-mail part par l'API HTTPS de Brevo (`EMAIL_API_KEY`, `EMAIL_FROM`), car Render bloque le SMTP sur son offre gratuite. Le SMTP (`SMTP_*`) reste utilisable en local. En local sans fournisseur, le lien s'affiche dans les logs (`dev_reset_link`).
 ## Structure
 
 ```
