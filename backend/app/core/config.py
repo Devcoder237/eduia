@@ -86,6 +86,9 @@ class Settings(BaseSettings):
     SMTP_PASSWORD: str = ""
     SMTP_FROM: str = ""
     SMTP_TIMEOUT_S: float = 15.0
+    EMAIL_API_KEY: str = ""
+    EMAIL_FROM: str = ""
+    EMAIL_FROM_NAME: str = "EduIA"
 
     # --- Observabilité --------------------------------------------------
     SENTRY_DSN: str = ""
